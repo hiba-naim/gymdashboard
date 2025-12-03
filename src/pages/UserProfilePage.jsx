@@ -68,18 +68,14 @@ export default function UserProfilePage() {
 
         let targetId = id;
 
-        // If user is not admin and no ID specified
         if (user?.role === "user" && !id) {
-          // Use the member_id from the logged-in user's account
           if (user?.member_id) {
             targetId = user.member_id;
           } else {
-            // Fallback to first member if no member_id set
             targetId = 1;
           }
         }
 
-        // Find the user by ID
         const member = rows.find((row) => String(row.id) === String(targetId));
 
         if (!member) {
@@ -88,7 +84,6 @@ export default function UserProfilePage() {
           setUserData(member);
         }
 
-        // fetch health_fitness_dataset.csv and map to healthMetrics
         const healthRes = await fetch('/health_fitness_dataset.csv');
         const healthText = await healthRes.text();
 
@@ -219,47 +214,51 @@ export default function UserProfilePage() {
 
           {/* LEFT COLUMN - detailed cards */}
           <div>
-            {/* Personal Information */}
+            {/* BMI in place of Personal Information (moved) */}
             <div className="card profile-section" style={{ width: '100%', marginBottom: 16 }}>
-              <h2>Personal Information</h2>
-                <div style={{ marginTop: 8 }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 12 }}>
-                    <div>
-                      <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)' }}>User ID</div>
-                      <div style={{ fontSize: 16, fontWeight: 500, marginTop: 6 }}>{userData.id ?? '–'}</div>
+              <h2>Body Metrics</h2>
+              <div style={{ marginTop: 8 }}>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                  {/* LEFT: Height / Weight */}
+                  <div style={{ minWidth: 140 }}>
+                    <div style={{ background: '#020617', borderRadius: 12, padding: '8px 10px', border: '1px solid rgba(148, 163, 184, 0.12)', marginBottom: 10, textAlign: 'left' }}>
+                      <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 4 }}>Height</div>
+                      <div style={{ fontSize: 20, fontWeight: 600 }}>{healthMetrics.heightCm ? `${healthMetrics.heightCm} cm` : '--'}</div>
                     </div>
 
-                    <div>
-                      <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)' }}>Gender</div>
-                      <div style={{ fontSize: 16, fontWeight: 500, marginTop: 6 }}>{userData.gender || 'N/A'}</div>
-                    </div>
-
-                    <div>
-                      <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)' }}>Age</div>
-                      <div style={{ fontSize: 16, fontWeight: 500, marginTop: 6 }}>{userData.Age || 'N/A'}</div>
+                    <div style={{ background: '#020617', borderRadius: 12, padding: '8px 10px', border: '1px solid rgba(148, 163, 184, 0.12)', textAlign: 'left' }}>
+                      <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 4 }}>Weight</div>
+                      <div style={{ fontSize: 20, fontWeight: 600 }}>{healthMetrics.weightKg ? `${healthMetrics.weightKg} kg` : '--'}</div>
                     </div>
                   </div>
 
-                  {/* Abonnement Type on its own row as a badge */}
-                  <div style={{ marginTop: 12 }}>
-                    <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)' }}>Abonnement Type</div>
-                    {(() => {
-                      const sub = userData.abonoment_type || '';
-                      const isPremium = String(sub).toLowerCase() === 'premium';
-                      const badgeStyle = {
-                        display: 'inline-block',
-                        padding: '6px 12px',
-                        borderRadius: 9999,
-                        marginTop: 8,
-                        fontWeight: 600,
-                        fontSize: 13,
-                        color: isPremium ? '#0f172a' : '#e6eef6',
-                        background: isPremium ? 'linear-gradient(90deg,#7c3aed,#06b6d4)' : '#1f2937',
-                      };
-                      return <div style={badgeStyle}>{sub || 'N/A'}</div>;
-                    })()}
+                  {/* RIGHT: BMI */}
+                  <div style={{ flex: 1, background: '#020617', borderRadius: 12, padding: '12px 14px', border: '1px solid rgba(148, 163, 184, 0.12)', textAlign: 'left' }}>
+                    <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 6 }}>Body Mass Index (BMI)</div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ fontSize: 24, fontWeight: 700 }}>{healthMetrics.bmi ? (Number.isFinite(Number(healthMetrics.bmi)) ? Number(healthMetrics.bmi).toFixed(1) : '--') : '--'}</div>
+                      <div style={{ fontSize: 12, padding: '4px 10px', borderRadius: 9999, backgroundColor: !healthMetrics.bmi ? 'rgba(148,163,184,0.12)' : (healthMetrics.bmi < 18.5 ? 'rgba(56,189,248,0.2)' : healthMetrics.bmi < 25 ? 'rgba(34,197,94,0.2)' : healthMetrics.bmi < 30 ? 'rgba(234,179,8,0.25)' : 'rgba(248,113,113,0.25)'), color: '#e5e7eb' }}>
+                        {!healthMetrics.bmi ? 'No BMI data' : healthMetrics.bmi < 18.5 ? 'Underweight' : healthMetrics.bmi < 25 ? 'Healthy' : healthMetrics.bmi < 30 ? 'Overweight' : 'Obese'}
+                      </div>
+                    </div>
+
+                    <div style={{ marginTop: 10 }}>
+                      <div style={{ position: 'relative', height: 10, borderRadius: 9999, background: 'linear-gradient(90deg, #38bdf8 0%, #22c55e 30%, #eab308 65%, #f97373 100%)', overflow: 'hidden' }}>
+                        {healthMetrics.bmi && Number.isFinite(Number(healthMetrics.bmi)) && (
+                          <div style={{ position: 'absolute', top: -2, width: 2, height: 14, backgroundColor: '#e5e7eb', left: `${Math.min(100, Math.max(0, ((Number(healthMetrics.bmi) - 15) / (40 - 15)) * 100))}%` }} />
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#9ca3af', marginTop: 8 }}>
+                        <span>Underweight</span>
+                        <span>Healthy</span>
+                        <span>Overweight</span>
+                        <span>Obese</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 8 }}>BMI value is read from the dataset (<code>bmi</code> column). It is not recalculated from height/weight.</div>
+                    </div>
                   </div>
                 </div>
+              </div>
             </div>
 
             {/* Gym Activity */}
@@ -483,142 +482,8 @@ export default function UserProfilePage() {
             )}
           </div>
 
-          {/* RIGHT COLUMN - BMI Insights widget (refactored) */}
-          <div>
-            <div
-              className="card bmi-insights-card"
-              style={{
-                padding: 16,
-                display: 'flex',
-                flexDirection: 'row',
-                gap: 16,
-                minWidth: 340,
-                maxWidth: 380,
-                alignSelf: 'flex-start',
-              }}
-            >
-              {/* LEFT COLUMN: height + weight tiles */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, minWidth: 110 }}>
-                <div
-                  style={{
-                    background: '#020617',
-                    borderRadius: 12,
-                    padding: '10px 12px',
-                    border: '1px solid rgba(148, 163, 184, 0.3)',
-                  }}
-                >
-                  <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 4 }}>Height</div>
-                  <div style={{ fontSize: 20, fontWeight: 600 }}>
-                    {healthMetrics.heightCm != null ? `${healthMetrics.heightCm} cm` : '--'}
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    background: '#020617',
-                    borderRadius: 12,
-                    padding: '10px 12px',
-                    border: '1px solid rgba(148, 163, 184, 0.3)',
-                  }}
-                >
-                  <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 4 }}>Weight</div>
-                  <div style={{ fontSize: 20, fontWeight: 600 }}>
-                    {healthMetrics.weightKg != null ? `${healthMetrics.weightKg} kg` : '--'}
-                  </div>
-                </div>
-              </div>
-
-              {/* RIGHT COLUMN: BMI card */}
-              <div
-                style={{
-                  flex: 1,
-                  background: '#020617',
-                  borderRadius: 12,
-                  padding: '10px 14px',
-                  border: '1px solid rgba(148, 163, 184, 0.3)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 12,
-                }}
-              >
-                <div style={{ fontSize: 12, color: '#9ca3af', letterSpacing: 0.5 }}>Body Mass Index (BMI)</div>
-
-                {/* BMI value + status */}
-                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
-                  <div style={{ fontSize: 28, fontWeight: 700 }}>
-                    {healthMetrics.bmi != null ? (Number.isFinite(Number(healthMetrics.bmi)) ? Number(healthMetrics.bmi).toFixed(1) : '--') : '--'}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      padding: '4px 10px',
-                      borderRadius: 9999,
-                      backgroundColor:
-                        healthMetrics.bmi == null
-                          ? 'rgba(148, 163, 184, 0.15)'
-                          : healthMetrics.bmi < 18.5
-                          ? 'rgba(56, 189, 248, 0.2)'
-                          : healthMetrics.bmi < 25
-                          ? 'rgba(34, 197, 94, 0.2)'
-                          : healthMetrics.bmi < 30
-                          ? 'rgba(234, 179, 8, 0.25)'
-                          : 'rgba(248, 113, 113, 0.25)',
-                      color: '#e5e7eb',
-                    }}
-                  >
-                    {healthMetrics.bmi == null
-                      ? 'No BMI data'
-                      : healthMetrics.bmi < 18.5
-                      ? 'Underweight'
-                      : healthMetrics.bmi < 25
-                      ? 'Healthy'
-                      : healthMetrics.bmi < 30
-                      ? 'Overweight'
-                      : 'Obese'}
-                  </div>
-                </div>
-
-                {/* BMI scale bar */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  <div
-                    style={{
-                      position: 'relative',
-                      height: 10,
-                      borderRadius: 9999,
-                      background: 'linear-gradient(90deg, #38bdf8 0%, #22c55e 30%, #eab308 65%, #f97373 100%)',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    {/* Indicator (only if bmi is present) */}
-                    {healthMetrics.bmi != null && Number.isFinite(Number(healthMetrics.bmi)) && (
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: -2,
-                          width: 2,
-                          height: 14,
-                          backgroundColor: '#e5e7eb',
-                          left: `${Math.min(100, Math.max(0, ((Number(healthMetrics.bmi) - 15) / (40 - 15)) * 100))}%`,
-                        }}
-                      />
-                    )}
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#9ca3af' }}>
-                    <span>Underweight</span>
-                    <span>Healthy</span>
-                    <span>Overweight</span>
-                    <span>Obese</span>
-                  </div>
-                </div>
-
-                {/* Note about source of BMI */}
-                <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 4, lineHeight: 1.4 }}>
-                  BMI value is read from the dataset (<code>bmi</code> column). It is not
-                  recalculated from height/weight.
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* RIGHT COLUMN - removed duplicate BMI widget */}
+          <div />
 
         </div>
       </div>
