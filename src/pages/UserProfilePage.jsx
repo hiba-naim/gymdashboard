@@ -50,6 +50,16 @@ const GROUP_LESSON_STYLES = {
   Zumba:       '#F97373',   // coral
 };
 
+// Drink badge styles
+const DRINK_STYLES = {
+  fav_drink_berryboost:       { label: 'Berry Boost',       color: '#f97373', icon: '🍓' },
+  fav_drink_lemon:            { label: 'Lemon',             color: '#facc15', icon: '🍋' },
+  fav_drink_passion_fruit:    { label: 'Passion Fruit',     color: '#fb923c', icon: '🥭' },
+  fav_drink_coconut_pineapple:{ label: 'Coconut Pineapple', color: '#22c55e', icon: '🥥' },
+  fav_drink_orange:           { label: 'Orange',            color: '#f97316', icon: '🍊' },
+  fav_drink_black_currant:    { label: 'Black Currant',     color: '#a855f7', icon: '🫐' },
+};
+
 
 
 export default function UserProfilePage() {
@@ -423,7 +433,7 @@ export default function UserProfilePage() {
             </div>
 
             {/* Favorite Group Lessons */}
-            {userData.has_fav_group_lesson && (
+            {(userData.has_fav_group_lesson === 1 || userData.has_fav_group_lesson === "1") && (
               <div className="card profile-section" style={{ width: '100%', marginBottom: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start' }}>
                   <div>
@@ -494,27 +504,56 @@ export default function UserProfilePage() {
             )}
 
             {/* Favorite Drinks */}
-            {userData.has_fav_drink && (
-              <div className="card profile-section" style={{ width: '100%', marginBottom: 16 }}>
-                <h2>Favorite Drinks</h2>
-                <div className="drinks-list">
-                  {[
-                    { key: 'fav_drink_berryboost', label: 'Berry Boost' },
-                    { key: 'fav_drink_lemon', label: 'Lemon' },
-                    { key: 'fav_drink_passion_fruit', label: 'Passion Fruit' },
-                    { key: 'fav_drink_coconut_pineapple', label: 'Coconut Pineapple' },
-                    { key: 'fav_drink_orange', label: 'Orange' },
-                    { key: 'fav_drink_black_currant', label: 'Black Currant' },
-                  ].map((drink) => (
-                    userData[drink.key] && (
-                      <span key={drink.key} className="drink-badge">
-                        {drink.label}
-                      </span>
-                    )
-                  ))}
-                </div>
+            <div className="card profile-section" style={{ width: '100%', marginBottom: 16 }}>
+              <h2>Favorite Drinks</h2>
+              <div style={{ marginTop: 8 }}>
+                {(() => {
+                  const activeDrinks = Object.entries(DRINK_STYLES).filter(([key]) => Boolean(userData[key]));
+
+                  if (activeDrinks.length === 0) {
+                    return (
+                      <p className="fav-classes-empty muted">This member hasn’t selected any favourite drinks yet.</p>
+                    );
+                  }
+
+                  return (
+                    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                      {activeDrinks.map(([key, style]) => (
+                        <div
+                          key={key}
+                          style={{
+                            padding: '10px 18px',
+                            borderRadius: 9999,
+                            backgroundColor: '#020617',
+                            border: `1px solid ${style.color}`,
+                            color: '#e5e7eb',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 10,
+                            minWidth: 180,
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.35)',
+                          }}
+                        >
+                          <span style={{
+                            width: 26,
+                            height: 26,
+                            borderRadius: '9999px',
+                            backgroundColor: style.color,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 14,
+                          }}>
+                            {style.icon}
+                          </span>
+                          <span style={{ fontWeight: 600, fontSize: 15 }}>{style.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
-            )}
+            </div>
           </div>
 
           {/* RIGHT COLUMN - removed duplicate BMI widget */}
