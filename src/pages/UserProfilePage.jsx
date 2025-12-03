@@ -36,6 +36,22 @@ function bmiToPercent(bmi) {
   return `${pct}%`;
 }
 
+const GROUP_LESSON_STYLES = {
+  BodyBalance: '#6366F1',   // indigo
+  BodyPump:    '#F97316',   // orange
+  HIT:         '#EA580C',   // deep orange
+  Kickboxing:  '#22C55E',   // green
+  'Les Miles': '#FACC15',   // yellow
+  Pilates:     '#EC4899',   // pink
+  Running:     '#A3E635',   // lime
+  Spinning:    '#0EA5E9',   // light blue
+  XCore:       '#8B5CF6',   // purple
+  Yoga:        '#14B8A6',   // teal
+  Zumba:       '#F97373',   // coral
+};
+
+
+
 export default function UserProfilePage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -255,7 +271,7 @@ export default function UserProfilePage() {
                         <span>Overweight</span>
                         <span>Obese</span>
                       </div>
-                      <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 8 }}>BMI value is read from the dataset (<code>bmi</code> column). It is not recalculated from height/weight.</div>
+                      <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 8 }}>BMI value (<code>bmi</code> column).</div>
                     </div>
                   </div>
                 </div>
@@ -409,27 +425,16 @@ export default function UserProfilePage() {
             {/* Favorite Group Lessons */}
             {userData.has_fav_group_lesson && (
               <div className="card profile-section" style={{ width: '100%', marginBottom: 16 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start' }}>
                   <div>
                     <h2 style={{ marginBottom: 6 }}>Favorite Group Lessons</h2>
                     <div className="muted" style={{ fontSize: 13 }}>Top classes this member enjoys</div>
                   </div>
-
-                  <div>
-                    <button style={{
-                      background: 'transparent',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                      color: 'var(--muted)',
-                      padding: '6px 10px',
-                      borderRadius: 8,
-                      fontSize: 13,
-                      cursor: 'pointer'
-                    }}>View similar classes</button>
-                  </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
-                  {[
+                {(() => {
+                  // dataset keys to check
+                  const lessons = [
                     'Group_Lesson_Kickboxen',
                     'Group_Lesson_BodyPump',
                     'Group_Lesson_Zumba',
@@ -441,24 +446,50 @@ export default function UserProfilePage() {
                     'Group_Lesson_HIT',
                     'Group_Lesson_Spinning',
                     'Group_Lesson_BodyBalance',
-                  ].map((lesson) => (
-                    userData[lesson] && (
-                      <div key={lesson} style={{
-                        padding: '6px 12px',
-                        borderRadius: 9999,
-                        background: 'rgba(255,255,255,0.03)',
-                        color: '#fff',
-                        fontWeight: 600,
-                        fontSize: 13,
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 8
-                      }}>
-                        {lesson.replace('Group_Lesson_', '')}
-                      </div>
-                    )
-                  ))}
-                </div>
+                  ];
+
+                  const activeLessons = lessons.filter((lessonKey) => Boolean(userData[lessonKey]));
+
+                  if (activeLessons.length === 0) {
+                    return (
+                      <p className="fav-classes-empty muted">
+                        This member has not selected any favorite group lessons yet.
+                      </p>
+                    );
+                  }
+
+                  return (
+                    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 16 }}>
+                      {activeLessons.map((lesson) => {
+                        const raw = lesson.replace('Group_Lesson_', '');
+                        const label = raw === 'Kickboxen' ? 'Kickboxing' : (raw === 'LesMiles' ? 'Les Miles' : raw);
+
+                        const color = GROUP_LESSON_STYLES[label] || 'rgba(255,255,255,0.06)';
+
+                        return (
+                          <div
+                            key={lesson}
+                            style={{
+                              padding: '12px 24px',
+                              borderRadius: 9999,
+                              backgroundColor: color,
+                              color: '#fff',
+                              fontWeight: 600,
+                              fontSize: 16,
+                              minWidth: 140,
+                              display: 'inline-flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              boxShadow: '0 4px 12px rgba(0,0,0,0.4)'
+                            }}
+                          >
+                            {label}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
               </div>
             )}
 
