@@ -1,0 +1,190 @@
+/* Service Cards - Neon Design */
+/* Service Cards - Neon Design */
+.service-card {
+  position: relative;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.9));
+  border-radius: 24px;
+  padding: 24px 18px;          /* was 32px 24px */
+  min-height: 210px;           /* was 260px */
+  max-width: 240px;            /* NEW: keep each card narrower */
+  width: 100%;                 /* let grid/flex control the width */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;                   /* was 20px */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  cursor: default;
+}
+
+
+.service-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  background: linear-gradient(135deg, transparent 30%, currentColor 50%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.service-card--active::before {
+  opacity: 0.15;
+}
+
+.service-card:hover {
+  transform: translateY(-4px) scale(1.02);
+}
+
+.service-card--active:hover {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+}
+
+/* Icon */
+.service-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+  transition: all 0.3s ease;
+}
+
+.service-card__icon img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  transition: filter 0.3s ease;
+}
+
+.service-card--active .service-card__icon img {
+  filter: drop-shadow(0 0 16px currentColor);
+}
+
+.service-card--active:hover .service-card__icon img {
+  filter: drop-shadow(0 0 24px currentColor) drop-shadow(0 0 12px currentColor);
+}
+
+.service-card--inactive .service-card__icon img {
+  opacity: 0.7;
+  filter: grayscale(0.3);
+}
+
+/* Title */
+.service-card__title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+  text-align: center;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Status */
+.service-card__status {
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  padding: 8px 20px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+}
+
+.service-card__status--active {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.15);
+  text-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+.service-card__status--inactive {
+  color: #64748b;
+  background: rgba(100, 116, 139, 0.08);
+}
+
+/* Variant: Sauna (Orange) */
+.service-card--sauna {
+  color: #ff9f43;
+}
+
+.service-card--sauna::before {
+  background: linear-gradient(135deg, transparent 30%, #ff9f43 50%, transparent 70%);
+}
+
+.service-card--sauna.service-card--active {
+  border-color: rgba(255, 159, 67, 0.2);
+}
+
+.service-card--sauna.service-card--active:hover {
+  box-shadow: 0 20px 60px rgba(255, 159, 67, 0.4), 0 0 80px rgba(255, 159, 67, 0.2);
+}
+
+/* Variant: Training (Cyan) */
+.service-card--training {
+  color: #22d3ee;
+}
+
+.service-card--training::before {
+  background: linear-gradient(135deg, transparent 30%, #22d3ee 50%, transparent 70%);
+}
+
+.service-card--training.service-card--active {
+  border-color: rgba(34, 211, 238, 0.2);
+}
+
+.service-card--training.service-card--active:hover {
+  box-shadow: 0 20px 60px rgba(34, 211, 238, 0.4), 0 0 80px rgba(34, 211, 238, 0.2);
+}
+
+/* Variant: Drink (Purple) */
+.service-card--drink {
+  color: #a78bfa;
+}
+
+.service-card--drink::before {
+  background: linear-gradient(135deg, transparent 30%, #a78bfa 50%, transparent 70%);
+}
+
+.service-card--drink.service-card--active {
+  border-color: rgba(167, 139, 250, 0.2);
+}
+
+.service-card--drink.service-card--active:hover {
+  box-shadow: 0 20px 60px rgba(167, 139, 250, 0.4), 0 0 80px rgba(167, 139, 250, 0.2);
+}
+
+/* Inactive state - dimmed, grey, no neon */
+.service-card--inactive {
+  color: #9ca3af !important;
+  background: linear-gradient(180deg, #020617, #020617) !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+.service-card--inactive::before {
+  opacity: 0 !important;
+}
+
+.service-card--inactive .service-card__icon img {
+  opacity: 0.6;
+  filter: grayscale(1) !important;
+}
+
+.service-card--inactive:hover .service-card__icon img {
+  filter: grayscale(1) !important;
+}
+
+/* Override variant colors for inactive cards */
+.service-card--inactive.service-card--sauna,
+.service-card--inactive.service-card--training,
+.service-card--inactive.service-card--drink {
+  color: #9ca3af !important;
+}
+
+.service-card--inactive.service-card--sauna:hover,
+.service-card--inactive.service-card--training:hover,
+.service-card--inactive.service-card--drink:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5) !important;
+}
