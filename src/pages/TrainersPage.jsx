@@ -257,110 +257,88 @@ export default function TrainersPage() {
 
   // ---------- Layout ----------
   return (
-    <LayoutDashboard
-      header={
-        <div>
-          <h1>Trainer Analytics</h1>
-          <p className="muted">View trainer statistics and performance</p>
-        </div>
-      }
-      filters={null}
-      /* TOP: two balanced cards */
-      stats={
-        <div
-          style={{
-            display: 'flex',
-            gap: '20px',
-            width: '100%',
-            alignItems: 'stretch',
-          }}
-        >
-          {/* LEFT — Members per Trainer */}
-          <div
-            className="card"
-            style={{
-              flex: 1,
-              padding: 20,
-              height: 420,
-              boxSizing: 'border-box',
-            }}
-          >
-            <h4 style={{ margin: '0 0 12px 0' }}>Members per Trainer</h4>
-            <div style={{ height: '350px' }}>
-              <Bar data={barChartData} options={barOptions} />
-            </div>
-          </div>
+  <LayoutDashboard
+    header={
+      <div>
+        <h1>Trainer Analytics</h1>
+        <p className="muted">View trainer statistics and performance</p>
+      </div>
+    }
+    filters={null}
+    // TOP: stacked full-width chart panels (each chart uses full horizontal width)
+    stats={
+      <div style={{ width: '100%' }}>
 
-          {/* RIGHT — PT Usage by Visits per Week */}
-          <div
-            className="card"
-            style={{
-              flex: 1,
-              padding: 20,
-              height: 420,
-              boxSizing: 'border-box',
-              overflow: 'hidden',
-            }}
-          >
-            <h4 style={{ margin: '0 0 12px 0' }}>PT Usage by Visits per Week</h4>
-            <div style={{ marginBottom: 8, color: 'var(--muted)' }}>
-              % of members with a personal trainer for each visits-per-week group
-            </div>
+        {/* Members per Trainer — full width */}
+        <div className="card p-4" style={{ width: '100%' }}>
+          <h4 className="mb-3">Members per Trainer</h4>
+          <div style={{ height: 320, width: '100%' }}>
+            <Bar data={barChartData} options={barOptions} />
+          </div>
+        </div>
 
-            <div style={{ height: '330px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <ReBarChart data={ptUsageData}>
-                  <ReCartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <ReXAxis dataKey="visits" tick={{ fill: '#cbd5f5' }} />
-                  <ReYAxis
-                    domain={[0, 100]}
-                    tickFormatter={(v) => `${v}%`}
-                    tick={{ fill: '#cbd5f5' }}
-                  />
-                  <ReTooltip
-                    formatter={(value, name) => [
-                      `${Number(value).toFixed(0)}%`,
-                      name === 'hasPt' ? 'Has PT' : 'No PT',
-                    ]}
-                    labelFormatter={(label) => `Visits per week: ${label}`}
-                    contentStyle={{
-                      backgroundColor: '#020617',
-                      borderColor: '#1e293b',
-                    }}
-                  />
-                  <ReLegend
-                    formatter={(value) => (value === 'hasPt' ? 'Has PT' : 'No PT')}
-                  />
-                  <ReBar
-                    dataKey="hasPt"
-                    name="Has PT"
-                    stackId="pt"
-                    fill="#3b82f6"
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <ReBar
-                    dataKey="noPt"
-                    name="No PT"
-                    stackId="pt"
-                    fill="#1e293b"
-                    radius={[0, 0, 4, 4]}
-                  />
-                </ReBarChart>
-              </ResponsiveContainer>
-            </div>
+        {/* PT Usage by Visits per Week — full width */}
+        <div className="card p-4" style={{ width: '100%', marginTop: 16 }}>
+          <h4 className="mb-3">PT Usage by Visits per Week</h4>
+          <div className="text-sm mb-2 text-muted-foreground">
+            % of members with a personal trainer for each visits-per-week group
+          </div>
+          <div style={{ height: 320, width: '100%' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <ReBarChart data={ptUsageData}>
+                <ReCartesianGrid strokeDasharray="3 3" vertical={false} />
+                <ReXAxis dataKey="visits" tick={{ fill: '#cbd5f5' }} />
+                <ReYAxis
+                  domain={[0, 100]}
+                  tickFormatter={(v) => `${v}%`}
+                  tick={{ fill: '#cbd5f5' }}
+                />
+                <ReTooltip
+                  formatter={(value, name) => [
+                    `${Number(value).toFixed(0)}%`,
+                    name === 'hasPt' ? 'Has PT' : 'No PT',
+                  ]}
+                  labelFormatter={(label) => `Visits per week: ${label}`}
+                  contentStyle={{
+                    backgroundColor: '#020617',
+                    borderColor: '#1e293b',
+                  }}
+                />
+                <ReLegend
+                  formatter={(value) => (value === 'hasPt' ? 'Has PT' : 'No PT')}
+                />
+                <ReBar
+                  dataKey="hasPt"
+                  name="Has PT"
+                  stackId="pt"
+                  fill="#3b82f6"
+                  radius={[4, 4, 0, 0]}
+                />
+                <ReBar
+                  dataKey="noPt"
+                  name="No PT"
+                  stackId="pt"
+                  fill="#1e293b"
+                  radius={[0, 0, 4, 4]}
+                />
+              </ReBarChart>
+            </ResponsiveContainer>
           </div>
         </div>
-      }
-      /* BOTTOM: full-width workload chart */
-      chart={
-        <div className="card" style={{ padding: 16 }}>
-          <h4 style={{ margin: '0 0 8px 0' }}>Trainer Workload by Time of Day</h4>
-          <div style={{ height: 400 }}>
-            <Bar data={workloadData} options={workloadOptions} />
-          </div>
+
+      </div>
+    }
+
+    // BOTTOM: full-width workload chart (unchanged)
+    chart={
+      <div className="card p-4">
+        <h4 className="mb-3">Trainer Workload by Time of Day</h4>
+        <div style={{ height: 400 }}>
+          <Bar data={workloadData} options={workloadOptions} />
         </div>
-      }
-      table={null}
-    />
-  );
+      </div>
+    }
+    table={null}
+  />
+);
 }
