@@ -265,76 +265,73 @@ export default function TrainersPage() {
       </div>
     }
     filters={null}
-    // TOP: stacked full-width chart panels (each chart uses full horizontal width)
-    stats={
-      <div style={{ width: '100%' }}>
-
-        {/* Members per Trainer — full width */}
-        <div className="card p-4" style={{ width: '100%' }}>
-          <h4 className="mb-3">Members per Trainer</h4>
-          <div style={{ height: 320, width: '100%' }}>
-            <Bar data={barChartData} options={barOptions} />
-          </div>
-        </div>
-
-        {/* PT Usage by Visits per Week — full width */}
-        <div className="card p-4" style={{ width: '100%', marginTop: 16 }}>
-          <h4 className="mb-3">PT Usage by Visits per Week</h4>
-          <div className="text-sm mb-2 text-muted-foreground">
-            % of members with a personal trainer for each visits-per-week group
-          </div>
-          <div style={{ height: 320, width: '100%' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <ReBarChart data={ptUsageData}>
-                <ReCartesianGrid strokeDasharray="3 3" vertical={false} />
-                <ReXAxis dataKey="visits" tick={{ fill: '#cbd5f5' }} />
-                <ReYAxis
-                  domain={[0, 100]}
-                  tickFormatter={(v) => `${v}%`}
-                  tick={{ fill: '#cbd5f5' }}
-                />
-                <ReTooltip
-                  formatter={(value, name) => [
-                    `${Number(value).toFixed(0)}%`,
-                    name === 'hasPt' ? 'Has PT' : 'No PT',
-                  ]}
-                  labelFormatter={(label) => `Visits per week: ${label}`}
-                  contentStyle={{
-                    backgroundColor: '#020617',
-                    borderColor: '#1e293b',
-                  }}
-                />
-                <ReLegend
-                  formatter={(value) => (value === 'hasPt' ? 'Has PT' : 'No PT')}
-                />
-                <ReBar
-                  dataKey="hasPt"
-                  name="Has PT"
-                  stackId="pt"
-                  fill="#3b82f6"
-                  radius={[4, 4, 0, 0]}
-                />
-                <ReBar
-                  dataKey="noPt"
-                  name="No PT"
-                  stackId="pt"
-                  fill="#1e293b"
-                  radius={[0, 0, 4, 4]}
-                />
-              </ReBarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-      </div>
-    }
-
-    // BOTTOM: full-width workload chart (unchanged)
+    stats={null}
     chart={
-      <div className="card p-4">
-        <h4 className="mb-3">Trainer Workload by Time of Day</h4>
-        <div style={{ height: 400 }}>
-          <Bar data={workloadData} options={workloadOptions} />
+      <div>
+        {/* Top two charts side by side on desktop, stacked on mobile */}
+        <div className="trainers-stats-grid">
+          {/* Members per Trainer — left on desktop */}
+          <div className="card p-4">
+            <h4 className="mb-3">Members per Trainer</h4>
+            <div style={{ height: 320, width: '100%' }}>
+              <Bar data={barChartData} options={barOptions} />
+            </div>
+          </div>
+
+          {/* PT Usage by Visits per Week — right on desktop */}
+          <div className="card p-4">
+            <h4 className="mb-3">PT Usage by Visits per Week</h4>
+            <div className="text-sm mb-2 text-muted-foreground">
+              % of members with a personal trainer for each visits-per-week group
+            </div>
+            <div style={{ height: 320, width: '100%' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <ReBarChart data={ptUsageData}>
+                  <ReCartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <ReXAxis dataKey="visits" tick={{ fill: '#cbd5f5' }} />
+                  <ReYAxis
+                    domain={[0, 100]}
+                    tickFormatter={(v) => `${v}%`}
+                    tick={{ fill: '#cbd5f5' }}
+                  />
+                  <ReTooltip
+                    formatter={(value, name) => [
+                      `${Number(value).toFixed(0)}%`,
+                      name,
+                    ]}
+                    labelFormatter={(label) => `Visits per week: ${label}`}
+                    contentStyle={{
+                      backgroundColor: '#020617',
+                      borderColor: '#1e293b',
+                    }}
+                  />
+                  <ReLegend />
+                  <ReBar
+                    dataKey="hasPt"
+                    name="Has PT"
+                    stackId="pt"
+                    fill="#3b82f6"
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <ReBar
+                    dataKey="noPt"
+                    name="No PT"
+                    stackId="pt"
+                    fill="#1d4ed8"
+                    radius={[0, 0, 4, 4]}
+                  />
+                </ReBarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom: full-width workload chart */}
+        <div className="card p-4" style={{ marginTop: 16 }}>
+          <h4 className="mb-3">Trainer Workload by Time of Day</h4>
+          <div style={{ height: 400 }}>
+            <Bar data={workloadData} options={workloadOptions} />
+          </div>
         </div>
       </div>
     }

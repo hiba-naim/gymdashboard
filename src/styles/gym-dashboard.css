@@ -745,3 +745,22 @@ tbody tr:nth-child(even) {
   .overview-charts-grid { grid-template-columns: 1fr; }
   .membership-donut { flex: 0 0 180px; }
 }
+
+/* TrainersPage specific styles */
+.trainers-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+.trainers-stats-grid > .card {
+  min-width: 0;
+  width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .trainers-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

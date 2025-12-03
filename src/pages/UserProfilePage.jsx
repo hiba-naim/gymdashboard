@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import CheckInOutRing from "../components/CheckInOutRing.jsx";
 import { useEffect, useState } from "react";
 import Papa from "papaparse";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -279,18 +280,21 @@ export default function UserProfilePage() {
                     <div className="text-xs muted mt-1">avg session</div>
                   </div>
 
-                  {/* Check-in Time */}
-                  <div className="card" style={{ padding: 12, boxShadow: '0 1px 0 rgba(255,255,255,0.02)' }}>
-                    <div className="text-sm muted">Check-in Time</div>
-                    <div className="text-xl font-semibold mt-2">{userData.avg_time_check_in || '–'}</div>
-                    <div className="text-xs muted mt-1">usually</div>
-                  </div>
-
-                  {/* Check-out Time */}
-                  <div className="card" style={{ padding: 12, boxShadow: '0 1px 0 rgba(255,255,255,0.02)' }}>
-                    <div className="text-sm muted">Check-out Time</div>
-                    <div className="text-xl font-semibold mt-2">{userData.avg_time_check_out || '–'}</div>
-                    <div className="text-xs muted mt-1">usually</div>
+                  {/* Combined Check-in → Check-out ring (spans two columns) */}
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <CheckInOutRing
+                      checkInTime={userData.avg_time_check_in}
+                      checkOutTime={userData.avg_time_check_out}
+                      sessionLabel={(() => {
+                        const t = userData.avg_time_check_in || '';
+                        const h = Number(String(t).split(':')[0] || 0);
+                        if (h >= 10 && h < 12) return 'Late Morning Session';
+                        if (h >= 12 && h < 16) return 'Afternoon Session';
+                        if (h >= 16 && h < 20) return 'Evening Session';
+                        if (h >= 6 && h < 10) return 'Morning Session';
+                        return 'Gym Session';
+                      })()}
+                    />
                   </div>
                 </div>
             </div>
