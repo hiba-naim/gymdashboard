@@ -114,26 +114,31 @@ export default function UserProfilePage() {
         const healthRes = await fetch('/health_fitness_dataset.csv');
         const healthText = await healthRes.text();
 
-        const lines = healthText.split('\n').filter(l => l.trim().length > 0);
-        const headers = lines[0].split(',').map(h => h.trim());
-        const healthRows = lines.slice(1).map(line => {
-          const cols = line.split(',');
-          const obj = {};
-          headers.forEach((h, i) => {
-            obj[h] = (cols[i] || '').trim();
-          });
-          return obj;
+        // Parse health CSV with Papa so headers are normalized (trimmed + lowercased)
+        const parsedHealth = Papa.parse(healthText, {
+          header: true,
+          dynamicTyping: false,
+          skipEmptyLines: true,
+          transformHeader: (h) => h.trim().toLowerCase(),
         });
 
+        const healthRows = Array.isArray(parsedHealth.data) ? parsedHealth.data : [];
+
+        // Find the matching health row by id using the header key 'id'
         const healthRow = healthRows.find(
           (r) => String(r.id) === String(targetId) || String(r.id) === String(member?.id)
         );
 
         if (healthRow) {
+          // Explicitly read the expected columns. Don't fallback to other columns.
+          const heightCm = (healthRow.height_cm !== undefined && healthRow.height_cm !== '') ? Number(healthRow.height_cm) : null;
+          const weightKg = (healthRow.weight_kg !== undefined && healthRow.weight_kg !== '') ? Number(healthRow.weight_kg) : null;
+          const bmiVal = (healthRow.bmi !== undefined && healthRow.bmi !== '' && !Number.isNaN(Number(healthRow.bmi))) ? Number(healthRow.bmi) : null;
+
           setHealthMetrics({
-            heightCm: healthRow.height_cm ? Number(healthRow.height_cm) : null,
-            weightKg: healthRow.weight_kg ? Number(healthRow.weight_kg) : null,
-            bmi: healthRow.bmi ? Number(healthRow.bmi) : null,
+            heightCm,
+            weightKg,
+            bmi: bmiVal,
           });
         } else {
           setHealthMetrics({ heightCm: null, weightKg: null, bmi: null });
