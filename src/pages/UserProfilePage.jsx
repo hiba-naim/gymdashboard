@@ -56,6 +56,16 @@ const GROUP_LESSON_STYLES = {
   Zumba: "#F97373", // coral
 };
 
+// Drink badge styles
+const DRINK_STYLES = {
+  fav_drink_berryboost:       { label: 'Berry Boost',       color: '#f97373', icon: '🍓' },
+  fav_drink_lemon:            { label: 'Lemon',             color: '#facc15', icon: '🍋' },
+  fav_drink_passion_fruit:    { label: 'Passion Fruit',     color: '#fb923c', icon: '🥭' },
+  fav_drink_coconut_pineapple:{ label: 'Coconut Pineapple', color: '#22c55e', icon: '🥥' },
+  fav_drink_orange:           { label: 'Orange',            color: '#f97316', icon: '🍊' },
+  fav_drink_black_currant:    { label: 'Black Currant',     color: '#a855f7', icon: '🫐' },
+};
+
 export default function UserProfilePage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -108,17 +118,17 @@ export default function UserProfilePage() {
         const healthRes = await fetch("/health_fitness_dataset.csv");
         const healthText = await healthRes.text();
 
-        const lines = healthText.split("\n").filter((l) => l.trim().length > 0);
-        const headers = lines[0].split(",").map((h) => h.trim());
-        const healthRows = lines.slice(1).map((line) => {
-          const cols = line.split(",");
-          const obj = {};
-          headers.forEach((h, i) => {
-            obj[h] = (cols[i] || "").trim();
-          });
-          return obj;
+        
+      // Parse health CSV with Papa so headers are normalized (trimmed + lowercased)
+        const parsedHealth = Papa.parse(healthText, {
+          header: true,
+          dynamicTyping: false,
+          skipEmptyLines: true,
+          transformHeader: (h) => h.trim().toLowerCase(),
         });
+const healthRows = Array.isArray(parsedHealth.data) ? parsedHealth.data : [];
 
+        // Find the matching health row by id using the header key 'id'
         const healthRow = healthRows.find(
           (r) =>
             String(r.id) === String(targetId) ||
@@ -126,10 +136,14 @@ export default function UserProfilePage() {
         );
 
         if (healthRow) {
+             // Explicitly read the expected columns. Don't fallback to other columns.
+          const heightCm = (healthRow.height_cm !== undefined && healthRow.height_cm !== '') ? Number(healthRow.height_cm) : null;
+          const weightKg = (healthRow.weight_kg !== undefined && healthRow.weight_kg !== '') ? Number(healthRow.weight_kg) : null;
+          const bmiVal = (healthRow.bmi !== undefined && healthRow.bmi !== '' && !Number.isNaN(Number(healthRow.bmi))) ? Number(healthRow.bmi) : null;
           setHealthMetrics({
-            heightCm: healthRow.height_cm ? Number(healthRow.height_cm) : null,
-            weightKg: healthRow.weight_kg ? Number(healthRow.weight_kg) : null,
-            bmi: healthRow.bmi ? Number(healthRow.bmi) : null,
+            heightCm,
+            weightKg,
+            bmi: bmiVal,
           });
         } else {
           setHealthMetrics({ heightCm: null, weightKg: null, bmi: null });
@@ -707,7 +721,7 @@ export default function UserProfilePage() {
               </div>
 
               {/* Favorite Group Lessons – colored chips */}
-              {userData.has_fav_group_lesson && (
+              {(userData.has_fav_group_lesson === 1 || userData.has_fav_group_lesson === "1") && (
                 <div
                   className="card profile-section"
                   style={{ width: "100%", marginBottom: 16 }}
@@ -803,46 +817,58 @@ export default function UserProfilePage() {
                 </div>
               )}
 
-              {/* Favorite Drinks */}
-              {userData.has_fav_drink && (
-                <div
-                  className="card profile-section"
-                  style={{ width: "100%", marginBottom: 16 }}
-                >
-                  <h2>Favorite Drinks</h2>
-                  <div className="drinks-list">
-                    {[
-                      { key: "fav_drink_berryboost", label: "Berry Boost" },
-                      { key: "fav_drink_lemon", label: "Lemon" },
-                      {
-                        key: "fav_drink_passion_fruit",
-                        label: "Passion Fruit",
-                      },
-                      {
-                        key: "fav_drink_coconut_pineapple",
-                        label: "Coconut Pineapple",
-                      },
-                      { key: "fav_drink_orange", label: "Orange" },
-                      {
-                        key: "fav_drink_black_currant",
-                        label: "Black Currant",
-                      },
-                    ].map(
-                      (drink) =>
-                        userData[drink.key] && (
-                          <span
-                            key={drink.key}
-                            className="drink-badge"
-                          >
-                            {drink.label}
-                          </span>
-                        )
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
+             {/* Favorite Drinks */}
+  <div className="card profile-section" style={{ width: '100%', marginBottom: 16 }}>
+              <h2>Favorite Drinks</h2>
+              <div style={{ marginTop: 8 }}>
+                {(() => {
+                  const activeDrinks = Object.entries(DRINK_STYLES).filter(([key]) => Boolean(userData[key]));
 
+                  if (activeDrinks.length === 0) {
+                    return (
+                      <p className="fav-classes-empty muted">This member hasn’t selected any favourite drinks yet.</p>
+                    );
+                  }
+
+                  return (
+                    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                      {activeDrinks.map(([key, style]) => (
+                        <div
+                          key={key}
+                          style={{
+                            padding: '10px 18px',
+                            borderRadius: 9999,
+                            backgroundColor: '#020617',
+                            border: `1px solid ${style.color}`,
+                            color: '#e5e7eb',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 10,
+                            minWidth: 180,
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.35)',
+                          }}
+                        >
+                          <span style={{
+                            width: 26,
+                            height: 26,
+                            borderRadius: '9999px',
+                            backgroundColor: style.color,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 14,
+                          }}>
+                            {style.icon}
+                          </span>
+                          <span style={{ fontWeight: 600, fontSize: 15 }}>{style.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
+</div>
+            </div>
             {/* RIGHT COLUMN placeholder (empty) */}
             <div />
           </div>
