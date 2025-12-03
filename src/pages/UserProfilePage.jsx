@@ -6,7 +6,7 @@ import Papa from "papaparse";
 import { useAuth } from "../context/AuthContext.jsx";
 import "../styles/user-profile.css";
 
-// BMI helpers (still here in case you want them later)
+// BMI helpers
 function getBmiCategory(bmi) {
   if (bmi == null || bmi === "" || Number.isNaN(Number(bmi))) return "unknown";
   const v = Number(bmi);
@@ -41,6 +41,20 @@ function bmiToPercent(bmi) {
   const pct = ((clamped - min) / (max - min)) * 100;
   return `${pct}%`;
 }
+
+const GROUP_LESSON_STYLES = {
+  BodyBalance: "#6366F1", // indigo
+  BodyPump: "#F97316", // orange
+  HIT: "#EA580C", // deep orange
+  Kickboxing: "#22C55E", // green
+  "Les Miles": "#FACC15", // yellow
+  Pilates: "#EC4899", // pink
+  Running: "#A3E635", // lime
+  Spinning: "#0EA5E9", // light blue
+  XCore: "#8B5CF6", // purple
+  Yoga: "#14B8A6", // teal
+  Zumba: "#F97373", // coral
+};
 
 export default function UserProfilePage() {
   const { id } = useParams();
@@ -342,10 +356,10 @@ export default function UserProfilePage() {
             </div>
           </div>
 
-          {/* Main grid (single column + empty right col) */}
+          {/* Main content */}
           <div style={{ maxWidth: "1150px", margin: "0 auto" }}>
+            {/* Body Metrics */}
             <div>
-              {/* Body Metrics card */}
               <div
                 className="card profile-section"
                 style={{ width: "100%", marginBottom: 16 }}
@@ -476,71 +490,69 @@ export default function UserProfilePage() {
                         </div>
                       </div>
 
-                      <div style={{ marginTop: 10 }}>
-                        <div
-                          style={{
-                            position: "relative",
-                            height: 10,
-                            borderRadius: 9999,
-                            background:
-                              "linear-gradient(90deg, #38bdf8 0%, #22c55e 30%, #eab308 65%, #f97373 100%)",
-                            overflow: "hidden",
-                          }}
-                        >
-                          {healthMetrics.bmi &&
-                            Number.isFinite(Number(healthMetrics.bmi)) && (
-                              <div
-                                style={{
-                                  position: "absolute",
-                                  top: -2,
-                                  width: 2,
-                                  height: 14,
-                                  backgroundColor: "#e5e7eb",
-                                  left: `${Math.min(
-                                    100,
-                                    Math.max(
-                                      0,
-                                      ((Number(healthMetrics.bmi) - 15) /
-                                        (40 - 15)) *
-                                        100
-                                    )
-                                  )}%`,
-                                }}
-                              />
-                            )}
-                        </div>
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            fontSize: 11,
-                            color: "#9ca3af",
-                            marginTop: 8,
-                          }}
-                        >
-                          <span>Underweight</span>
-                          <span>Healthy</span>
-                          <span>Overweight</span>
-                          <span>Obese</span>
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 11,
-                            color: "#9ca3af",
-                            marginTop: 8,
-                          }}
-                        >
-                          BMI value is read from the dataset (<code>bmi</code>{" "}
-                          column). It is not recalculated from
-                          height/weight.
-                        </div>
+                      <div
+                        style={{
+                          position: "relative",
+                          height: 10,
+                          borderRadius: 9999,
+                          background:
+                            "linear-gradient(90deg, #38bdf8 0%, #22c55e 30%, #eab308 65%, #f97373 100%)",
+                          overflow: "hidden",
+                          marginTop: 10,
+                        }}
+                      >
+                        {healthMetrics.bmi &&
+                          Number.isFinite(Number(healthMetrics.bmi)) && (
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: -2,
+                                width: 2,
+                                height: 14,
+                                backgroundColor: "#e5e7eb",
+                                left: `${Math.min(
+                                  100,
+                                  Math.max(
+                                    0,
+                                    ((Number(healthMetrics.bmi) - 15) /
+                                      (40 - 15)) *
+                                      100
+                                  )
+                                )}%`,
+                              }}
+                            />
+                          )}
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          fontSize: 11,
+                          color: "#9ca3af",
+                          marginTop: 8,
+                        }}
+                      >
+                        <span>Underweight</span>
+                        <span>Healthy</span>
+                        <span>Overweight</span>
+                        <span>Obese</span>
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 11,
+                          color: "#9ca3af",
+                          marginTop: 8,
+                        }}
+                      >
+                        BMI value is read from the dataset (<code>bmi</code>{" "}
+                        column). It is not recalculated from height/weight.
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Gym Activity + Member Services inside */}
+              {/* Gym Activity + Member Services */}
               <div
                 className="card profile-section"
                 style={{ width: "100%", marginBottom: 16 }}
@@ -551,12 +563,12 @@ export default function UserProfilePage() {
                   style={{
                     display: "grid",
                     gridTemplateColumns: "minmax(0, 1.4fr) minmax(0, 2fr)",
-                    gap: 16,
+                    gap: 24, // a bit more gap to avoid visual overlap
                     marginTop: 8,
                     alignItems: "stretch",
                   }}
                 >
-                  {/* LEFT: Member Services only */}
+                  {/* LEFT: Member Services */}
                   <div
                     style={{
                       paddingTop: 8,
@@ -694,57 +706,25 @@ export default function UserProfilePage() {
                 </div>
               </div>
 
-              {/* Favorite Group Lessons */}
+              {/* Favorite Group Lessons – colored chips */}
               {userData.has_fav_group_lesson && (
                 <div
                   className="card profile-section"
                   style={{ width: "100%", marginBottom: 16 }}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                    }}
-                  >
+                  <div style={{ display: "flex", alignItems: "flex-start" }}>
                     <div>
                       <h2 style={{ marginBottom: 6 }}>
                         Favorite Group Lessons
                       </h2>
-                      <div
-                        className="muted"
-                        style={{ fontSize: 13 }}
-                      >
+                      <div className="muted" style={{ fontSize: 13 }}>
                         Top classes this member enjoys
                       </div>
                     </div>
-
-                    <div>
-                      <button
-                        style={{
-                          background: "transparent",
-                          border: "1px solid rgba(255,255,255,0.06)",
-                          color: "var(--muted)",
-                          padding: "6px 10px",
-                          borderRadius: 8,
-                          fontSize: 13,
-                          cursor: "pointer",
-                        }}
-                      >
-                        View similar classes
-                      </button>
-                    </div>
                   </div>
 
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: 8,
-                      flexWrap: "wrap",
-                      marginTop: 12,
-                    }}
-                  >
-                    {[
+                  {(() => {
+                    const lessons = [
                       "Group_Lesson_Kickboxen",
                       "Group_Lesson_BodyPump",
                       "Group_Lesson_Zumba",
@@ -756,28 +736,70 @@ export default function UserProfilePage() {
                       "Group_Lesson_HIT",
                       "Group_Lesson_Spinning",
                       "Group_Lesson_BodyBalance",
-                    ].map(
-                      (lesson) =>
-                        userData[lesson] && (
-                          <div
-                            key={lesson}
-                            style={{
-                              padding: "6px 12px",
-                              borderRadius: 9999,
-                              background: "rgba(255,255,255,0.03)",
-                              color: "#fff",
-                              fontWeight: 600,
-                              fontSize: 13,
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: 8,
-                            }}
-                          >
-                            {lesson.replace("Group_Lesson_", "")}
-                          </div>
-                        )
-                    )}
-                  </div>
+                    ];
+
+                    const activeLessons = lessons.filter((lessonKey) =>
+                      Boolean(userData[lessonKey])
+                    );
+
+                    if (activeLessons.length === 0) {
+                      return (
+                        <p className="fav-classes-empty muted">
+                          This member has not selected any favorite group
+                          lessons yet.
+                        </p>
+                      );
+                    }
+
+                    return (
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 12,
+                          flexWrap: "wrap",
+                          marginTop: 16,
+                        }}
+                      >
+                        {activeLessons.map((lesson) => {
+                          const raw = lesson.replace(
+                            "Group_Lesson_",
+                            ""
+                          );
+                          const label =
+                            raw === "Kickboxen"
+                              ? "Kickboxing"
+                              : raw === "LesMiles"
+                              ? "Les Miles"
+                              : raw;
+                          const color =
+                            GROUP_LESSON_STYLES[label] ||
+                            "rgba(255,255,255,0.06)";
+
+                          return (
+                            <div
+                              key={lesson}
+                              style={{
+                                padding: "12px 24px",
+                                borderRadius: 9999,
+                                backgroundColor: color,
+                                color: "#fff",
+                                fontWeight: 600,
+                                fontSize: 16,
+                                minWidth: 140,
+                                display: "inline-flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                boxShadow:
+                                  "0 4px 12px rgba(0,0,0,0.4)",
+                              }}
+                            >
+                              {label}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
 
